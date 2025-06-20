@@ -66,7 +66,7 @@ This is a **GUI-first project**, not a command-line tool. Once the GUI is ready,
 Python-Rules-GUI/
 ├── builder.py        # Rule logic and validation
 ├── gui.py            # GUI frontend (PyQt)
-├── assets/           # Icons and static files (optional)
+├── assets/           
 ├── README.md         # You're here.
 ├── .gitignore
 ```
