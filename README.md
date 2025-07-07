@@ -1,45 +1,58 @@
-# YARA Rule Generator GUI
+# YARA & Sigma Rule Generator GUI
 
-A modern, user-friendly graphical interface for creating and validating YARA rules with advanced error handling and usability features.
+A modern, user-friendly graphical interface for creating and validating both **YARA** and **Sigma** rules with advanced error handling and usability features.
 
 ![YARA Rule Generator](https://img.shields.io/badge/YARA-Rule%20Generator-blue)
+![Sigma Rule Generator](https://img.shields.io/badge/Sigma-Rule%20Generator-purple)
 ![PyQt5](https://img.shields.io/badge/PyQt5-GUI-orange)
 ![Status](https://img.shields.io/badge/Status-Complete-brightgreen)
 
 ## 🎯 Overview
 
-This application provides an intuitive GUI for creating YARA rules, making malware detection rule development accessible to both beginners and advanced users. It features dynamic field management, real-time validation, template assistance, and comprehensive error handling.
+This application provides an intuitive GUI for creating both YARA and Sigma rules, making malware detection and threat hunting rule development accessible to both beginners and advanced users. It features dynamic field management, real-time validation, template assistance, and comprehensive error handling for both rule types.
 
 ## ✨ Key Features
 
-### 🔧 Dynamic Rule Building
-- **Dynamic Meta Fields**: Add/remove metadata key-value pairs with validation
-- **Enhanced String Management**: Unlimited string definitions with scroll support
-- **Condition Templates**: Quick insertion of common YARA patterns
+###  Dual Rule Support
+- **YARA Rules**: Complete malware detection rule creation
+- **Sigma Rules**: Log analysis and threat hunting rule generation
+- **Mode Switching**: Easy dropdown to switch between YARA and Sigma modes
+- **Unified Interface**: Same intuitive design for both rule types
+
+###  Dynamic Rule Building
+- **Dynamic Meta Fields** (YARA): Add/remove metadata key-value pairs with validation
+- **Enhanced String Management** (YARA): Unlimited string definitions with scroll support
+- **Detection Patterns** (Sigma): Dynamic detection entries with pattern lists
+- **Logsource Configuration** (Sigma): Product, service, and category specification
+- **Condition Templates**: Quick insertion of common patterns for both rule types
 - **Real-time Validation**: Immediate feedback on rule syntax and structure
 
 ### 🎨 Modern UI/UX
 - **Responsive Design**: Proper window resizing with stretch factors
 - **Tooltips & Guidance**: Comprehensive help text for all fields
 - **Status Bar**: Real-time operation feedback
-- **Keyboard Navigation**: Tab order and Ctrl+Enter shortcuts
+- **Keyboard Navigation**: Tab order and shortcuts (Ctrl+Enter for YARA, Ctrl+Shift+Enter for Sigma)
+- **Visual Mode Indicators**: Clear indication of current rule type
 
 ### 🛡️ Advanced Error Handling
 - **Color-coded Feedback**: Red for errors, orange for warnings, green for success
 - **Field-specific Highlighting**: Pinpoint exactly where issues occur
 - **Inline Error Messages**: Descriptive feedback with suggested fixes
-- **Performance Warnings**: Detection of potentially slow regex patterns
+- **Performance Warnings**: Detection of potentially problematic patterns
+- **Mode-specific Validation**: Tailored validation for YARA vs Sigma rules
 
 ### 📤 Export & Integration
-- **One-click Export**: Save rules to .yara files
-- **Backend Integration**: Robust validation engine with comprehensive checks
-- **Format Compliance**: YARA-compatible output
+- **One-click Export**: Save YARA rules to .yara files, Sigma rules to .yml files
+- **Backend Integration**: Robust validation engines for both rule types
+- **Format Compliance**: YARA and Sigma specification-compatible output
+- **Dual Preview**: Real-time preview for both rule formats
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.7 or higher
 - PyQt5
+- PyYAML (for Sigma rules)
 
 ### Installation
 
@@ -51,7 +64,7 @@ This application provides an intuitive GUI for creating YARA rules, making malwa
 
 2. **Install dependencies:**
    ```bash
-   pip install PyQt5
+   pip install PyQt5 PyYAML
    ```
 
 3. **Launch the application:**
@@ -61,7 +74,12 @@ This application provides an intuitive GUI for creating YARA rules, making malwa
 
 ## 🎮 Usage Guide
 
-### Basic Workflow
+### Rule Type Selection
+
+1. **Choose Rule Type**: Use the dropdown at the top to select between "YARA Rule" and "Sigma Rule"
+2. **Mode Switching**: Switch between modes at any time - your data in the inactive mode is preserved
+
+### YARA Rule Workflow
 
 1. **Rule Header**
    - Enter a valid rule name (must start with letter/underscore)
@@ -84,8 +102,40 @@ This application provides an intuitive GUI for creating YARA rules, making malwa
    - Reference strings by their IDs
 
 5. **Preview & Export**
-   - Click "Preview Rule" or press Ctrl+Enter
+   - Click "Preview YARA Rule" or press Ctrl+Enter
    - Fix any highlighted errors
+   - Export to `.yara` files
+
+### Sigma Rule Workflow
+
+1. **Rule Information**
+   - Enter rule title and description
+   - Description supports multi-line text
+
+2. **Log Source**
+   - Specify product (windows, linux, etc.)
+   - Specify service (sysmon, auditd, etc.)
+   - Optionally add category (process_creation, network_connection, etc.)
+
+3. **Detection Patterns**
+   - Click "+ Add Detection" to add detection blocks
+   - Enter detection ID (using snake_case)
+   - Add patterns one per line
+   - Use scroll area for managing multiple detection blocks
+
+4. **Condition Building**
+   - Write boolean expressions using detection IDs
+   - Use logical operators (and, or, not)
+   - Reference detection blocks by their IDs
+
+5. **Output Fields**
+   - Specify comma-separated field names
+   - Fields will be included in detection output
+
+6. **Preview & Export**
+   - Click "Preview Sigma Rule" or press Ctrl+Shift+Enter
+   - Fix any highlighted errors
+   - Export to `.yml` files
    - Export valid rules to .yara files
 
 ### Template Examples
@@ -122,7 +172,8 @@ Common error types and fixes:
 ```
 Python-Rules-GUI/
 ├── gui.py                          # Main GUI application (Enhanced)
-├── builder.py                      # Backend validation engine
+├── builder.py                      # YARA rule validation engine
+├── sigma_builder.py                # Sigma rule validation engine
 └── README.md                       # This file
 ```
 
@@ -220,6 +271,7 @@ If the GUI feels slow:
 
 Here's what the tool generates:
 
+### YARA Rule Example
 ```yara
 rule Ransomware_Generic_Pattern : ransomware crypto malware
 {
@@ -234,6 +286,38 @@ rule Ransomware_Generic_Pattern : ransomware crypto malware
     condition:
         filesize > 500KB and 2 of them
 }
+```
+
+### Sigma Rule Example
+```yaml
+title: SuspiciousProcessCreation
+description: Detects suspicious process creation events indicating potential malware execution
+logsource:
+  product: windows
+  service: sysmon
+  category: process_creation
+detection:
+  selection:
+  - powershell.exe
+  - cmd.exe
+  - wscript.exe
+  suspicious_args:
+  - '*-EncodedCommand*'
+  - '*-exec bypass*'
+  - '*downloadstring*'
+  network_indicators:
+  - '*http://*'
+  - '*https://*'
+condition: selection and (suspicious_args or network_indicators)
+fields:
+- ProcessName
+- CommandLine
+- User
+- ParentProcessName
+tags:
+- attack.execution
+- attack.t1059
+level: medium
 ```
 
 ## 🤝 Contributing
@@ -270,4 +354,4 @@ For issues, questions, or feature requests:
 
 **Built with ❤️ for the cybersecurity community**
 
-*Making YARA rule creation accessible, reliable, and efficient.*
+*Making YARA and Sigma rule creation accessible, reliable, and efficient.*
